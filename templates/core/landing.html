@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}ExamPath - Prepare Smarter. Practice Every BCS Question.{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container-custom">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="d-inline-flex align-items-center gap-2 mb-3" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:9999px;padding:6px 14px;font-size:0.8rem;font-weight:600;">
+          <span style="width:8px;height:8px;background:var(--color-success);border-radius:50%;display:inline-block;"></span>
+          Live Question Bank • {{ total_questions }}+ Questions
+        </div>
+        <h1 class="hero-title mb-3">
+          Prepare Smarter.<br>
+          <span style="color:var(--color-accent);">Practice Every BCS Question.</span>
+        </h1>
+        <p class="lead mb-4" style="color:var(--color-text-secondary);font-size:1.125rem;line-height:1.6;">
+          Master previous exams. Track your progress. Build your confidence.<br>
+          <span class="fw-semibold" style="color:var(--color-text);">Powered by the actual ExamPath Academy bank — {{ total_sessions }} exam sets, {{ total_subjects }} subjects, zero fake questions.</span>
+        </p>
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <a href="/exams/" class="btn btn-accent btn-premium"><i class="bi bi-play-fill"></i> Start Practicing</a>
+          <a href="/exams/" class="btn btn-ghost btn-premium"><i class="bi bi-collection"></i> Explore Exams</a>
+        </div>
+        <div class="d-flex gap-4">
+          <div><div class="fw-bold" style="font-size:1.25rem;">{{ total_questions }}+</div><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Questions</div></div>
+          <div style="width:1px;background:var(--color-border);"></div>
+          <div><div class="fw-bold" style="font-size:1.25rem;">{{ total_sessions }}</div><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Exam Sets</div></div>
+          <div style="width:1px;background:var(--color-border);"></div>
+          <div><div class="fw-bold" style="font-size:1.25rem;">BCS</div><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Family</div></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card-premium" style="padding:0;overflow:hidden;">
+          <div class="p-4 d-flex justify-content-between align-items-center" style="background:var(--color-bg-subtle);border-bottom:1px solid var(--color-border);">
+            <div class="d-flex align-items-center gap-2"><i class="bi bi-lightning-charge-fill text-warning"></i><span class="fw-semibold small">Continue Learning</span></div>
+            <span class="badge-premium" style="background:var(--color-surface);">Practice • Exam • Review</span>
+          </div>
+          <div class="p-4">
+            <div class="d-flex gap-3 mb-3">
+              <div style="width:48px;height:48px;background:var(--color-accent);color:white;display:grid;place-items:center;border-radius:12px;font-weight:700;">50</div>
+              <div>
+                <div class="fw-semibold">50th BCS — General</div>
+                <div class="small" style="color:var(--color-text-muted);">200 Questions • 200 Marks • 30 Jan 2026</div>
+              </div>
+            </div>
+            <div class="progress-premium mb-2"><div class="progress-bar-premium" style="width:43%"></div></div>
+            <div class="d-flex justify-content-between small mb-3"><span style="color:var(--color-text-muted);">Question 86 / 200</span><span class="fw-semibold">43%</span></div>
+            <div class="d-grid"><a href="/exams/" class="btn btn-primary-custom btn-premium justify-content-center">Continue <i class="bi bi-arrow-right"></i></a></div>
+            <div class="row g-2 mt-4 text-center">
+              <div class="col-4"><div class="surface p-2" style="border-radius:10px;"><div class="fw-bold">14🔥</div><div class="small" style="color:var(--color-text-muted);font-size:0.7rem;">Streak</div></div></div>
+              <div class="col-4"><div class="surface p-2" style="border-radius:10px;"><div class="fw-bold">1,240 XP</div><div class="small" style="color:var(--color-text-muted);font-size:0.7rem;">Level 12</div></div></div>
+              <div class="col-4"><div class="surface p-2" style="border-radius:10px;"><div class="fw-bold">78%</div><div class="small" style="color:var(--color-text-muted);font-size:0.7rem;">Accuracy</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-custom">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <h3 class="mb-1">Exam Library</h3>
+        <p class="mb-0" style="color:var(--color-text-secondary);">47 MCQ sets + 12 Written — historical + special • dynamically calculated</p>
+      </div>
+      <a href="/exams/" class="btn btn-ghost btn-premium d-none d-md-inline-flex">View all <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="row g-3">
+      {% for exam in featured_exams %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card-premium exam-card h-100" style="padding:0;">
+            <div class="p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge-premium {% if exam.status == 'CANCELLED' %}bg-danger text-white{% elif exam.is_demo %}bg-warning{% else %}bg-accent-soft{% endif %}" style="font-size:0.7rem;">{{ exam.exam_type }}{% if exam.specialization %} • {{ exam.specialization }}{% endif %}</span>
+                <span class="small" style="color:var(--color-text-muted);">{{ exam.exam_date|default:"—" }}</span>
+              </div>
+              <h5 class="mb-1">{{ exam.name }}</h5>
+              <p class="small mb-3" style="color:var(--color-text-secondary);">{{ exam.question_count }} Questions • {{ exam.marks }} Marks • <span class="font-monospace">{{ exam.route_id }}</span></p>
+              <div class="d-flex gap-2">
+                <a href="/exams/{{ exam.slug }}/" class="btn btn-primary-custom btn-premium flex-fill justify-content-center" style="font-size:0.85rem;">Open</a>
+                <a href="/exams/{{ exam.slug }}/exam/" class="btn btn-ghost btn-premium flex-fill justify-content-center" style="font-size:0.85rem;"><i class="bi bi-stopwatch"></i> Exam</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12"><div class="empty-state"><p>No exams yet. Import the question bank.</p></div></div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4 d-md-none"><a href="/exams/" class="btn btn-ghost btn-premium">View all exams</a></div>
+  </div>
+</section>
+
+<section class="py-5" style="background:var(--color-surface);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);">
+  <div class="container-custom">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="d-flex gap-3">
+          <div style="width:44px;height:44px;background:var(--color-accent-soft);border:1px solid var(--color-accent-border);display:grid;place-items:center;border-radius:12px;color:var(--color-accent);"><i class="bi bi-bullseye"></i></div>
+          <div><h6 class="mb-1">How it works</h6><p class="small mb-0" style="color:var(--color-text-secondary);">Discover exam → Choose year → Practice → Learn from explanation → Track → Improve → Earn XP → Level up.</p></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex gap-3">
+          <div style="width:44px;height:44px;background:var(--color-success-soft);border:1px solid var(--color-success-border);display:grid;place-items:center;border-radius:12px;color:var(--color-success);"><i class="bi bi-graph-up"></i></div>
+          <div><h6 class="mb-1">Adaptive Learning</h6><p class="small mb-0" style="color:var(--color-text-secondary);">Weak-topic detection, spaced review, personalized recommendations from your actual attempts.</p></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex gap-3">
+          <div style="width:44px;height:44px;background:var(--color-xp-soft);border:1px solid #fde68a;display:grid;place-items:center;border-radius:12px;color:#92400e;"><i class="bi bi-trophy"></i></div>
+          <div><h6 class="mb-1">Gamification</h6><p class="small mb-0" style="color:var(--color-text-secondary);">XP, levels, streaks, achievements, leaderboards — premium, not childish.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-custom">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-6">
+        <h3>Practice Modes</h3>
+        <p style="color:var(--color-text-secondary);">More than a mock test. A learning loop.</p>
+        <div class="row g-3 mt-2">
+          <div class="col-6"><div class="surface p-3" style="border-radius:12px;"><div class="fw-semibold small"><i class="bi bi-check2-square text-success me-1"></i> Practice</div><div class="small" style="color:var(--color-text-muted);">Immediate feedback + explanation</div></div></div>
+          <div class="col-6"><div class="surface p-3" style="border-radius:12px;"><div class="fw-semibold small"><i class="bi bi-stopwatch text-accent me-1"></i> Exam Sim</div><div class="small" style="color:var(--color-text-muted);">200 Q • Timer • Navigator</div></div></div>
+          <div class="col-6"><div class="surface p-3" style="border-radius:12px;"><div class="fw-semibold small"><i class="bi bi-lightning text-warning me-1"></i> Quick 5/10/20</div><div class="small" style="color:var(--color-text-muted);">Bite-sized challenges</div></div></div>
+          <div class="col-6"><div class="surface p-3" style="border-radius:12px;"><div class="fw-semibold small"><i class="bi bi-exclamation-triangle text-danger me-1"></i> Weak Area</div><div class="small" style="color:var(--color-text-muted);">Low accuracy topics</div></div></div>
+          <div class="col-6"><div class="surface p-3" style="border-radius:12px;"><div class="fw-semibold small"><i class="bi bi-x-circle me-1"></i> Incorrect</div><div class="small" style="color:var(--color-text-muted);">Only wrong answers</div></div></div>
+          <div class="col-6"><div class="surface p-3" style="border-radius:12px;"><div class="fw-semibold small"><i class="bi bi-bookmark-star me-1"></i> Bookmarked</div><div class="small" style="color:var(--color-text-muted);">Your saved list</div></div></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card-premium">
+          <h6 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Subjects</h6>
+          <div class="d-flex flex-wrap gap-2">
+            {% for subj in subjects %}
+              <a href="/exams/?subject={{ subj.slug }}" class="badge-premium text-decoration-none" style="background:var(--color-surface);border-color:var(--color-border);color:var(--color-text);">{{ subj.name }} • {{ subj.qcount }}</a>
+            {% endfor %}
+          </div>
+          <hr style="border-color:var(--color-border);">
+          <div class="row text-center g-3">
+            <div class="col-4"><div class="fw-bold" style="color:var(--color-accent);">{{ total_questions }}</div><div class="small" style="color:var(--color-text-muted);font-size:0.7rem;">QUESTIONS</div></div>
+            <div class="col-4"><div class="fw-bold" style="color:var(--color-success);">100% Bangla</div><div class="small" style="color:var(--color-text-muted);font-size:0.7rem;">UTF-8 Safe</div></div>
+            <div class="col-4"><div class="fw-bold" style="color:var(--color-level);">KaTeX</div><div class="small" style="color:var(--color-text-muted);font-size:0.7rem;">LaTeX</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" style="background:var(--color-bg-subtle);">
+  <div class="container-custom">
+    <div class="card-premium text-center p-5 card-cta" style="border:none;">
+      <h2 class="mb-3">Become Exam Ready</h2>
+      <p class="mb-4 cta-subtitle">Join thousands practicing every real BCS question — not a demo. Track • Improve • Rank • Succeed.</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="/accounts/register/" class="btn btn-accent btn-premium"><i class="bi bi-rocket"></i> Create Free Account</a>
+        <a href="/exams/" class="btn btn-ghost btn-premium btn-ghost-cta">Explore Question Bank</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

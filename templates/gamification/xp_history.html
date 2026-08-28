@@ -1,0 +1,13 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4" style="max-width:600px;">
+  <h3>XP History</h3>
+  {% for tx in txs %}
+    <div class="d-flex justify-content-between align-items-center p-3 mb-2" style="background:var(--color-bg-subtle);border-radius:12px;">
+      <div><div class="fw-semibold small">{{ tx.get_source_display }}</div><div class="small" style="color:var(--color-text-muted);">{{ tx.description|default:tx.source }} • {{ tx.created_at|date:"M d, H:i" }}</div></div>
+      <span class="badge-premium badge-xp">+{{ tx.amount }} XP</span>
+    </div>
+  {% empty %}<p style="color:var(--color-text-muted);">No XP yet.</p>{% endfor %}
+</div>
+{% endblock %}

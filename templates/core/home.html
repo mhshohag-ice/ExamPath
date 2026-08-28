@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uttoron - Home</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+        header { background: #0d6efd; color: white; padding: 1.5rem; border-radius: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem; background: #f9fafb; }
+        .card a { text-decoration: none; color: #0d6efd; font-weight: 600; }
+        .badge { background: #198754; color: white; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.8rem; }
+        code { background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Uttoron - Running on Local Server</h1>
+        <p>Django 6.0.8 | DEBUG=True | <span class="badge">OK</span></p>
+        <p><a href="/health/" style="color: #fff; text-decoration: underline;">Health check</a> | <a href="/admin/" style="color: #fff; text-decoration: underline;">Admin</a></p>
+    </header>
+
+    <h2>Available Apps</h2>
+    <div class="grid">
+        <div class="card"><a href="/accounts/">Accounts</a><p>User authentication and profiles</p></div>
+        <div class="card"><a href="/dashboard/">Dashboard</a><p>User dashboard and overview</p></div>
+        <div class="card"><a href="/exams/">Exams</a><p>Exam management</p></div>
+        <div class="card"><a href="/questions/">Questions</a><p>Question bank</p></div>
+        <div class="card"><a href="/quiz/">Quiz</a><p>Quiz engine (templatetags included)</p></div>
+        <div class="card"><a href="/bookmarks/">Bookmarks</a><p>Saved items</p></div>
+        <div class="card"><a href="/analytics/">Analytics</a><p>Usage analytics</p></div>
+        <div class="card"><a href="/gamification/">Gamification</a><p>Points and badges</p></div>
+        <div class="card"><a href="/imports/">Imports</a><p>Bulk import tool</p></div>
+    </div>
+
+    <h3>Project Structure</h3>
+    <p>Location: <code>C:\Users\mhsho\OneDrive\Desktop\Uttoron</code></p>
+    <p>Settings: <code>config.settings</code> | URLs: <code>config.urls</code> | DB: <code>db.sqlite3</code></p>
+
+    <h3>Next Steps</h3>
+    <ul>
+        <li>Create superuser: <code>python manage.py createsuperuser</code></li>
+        <li>Add models to each app and run <code>python manage.py makemigrations and migrate</code></li>
+        <li>Build templates under <code>templates/app/</code></li>
+    </ul>
+
+    <footer style="margin-top: 2rem; color: #6b7280; font-size: 0.9rem;">
+        <p>Uttoron scaffold generated to make the empty skeleton runnable. Replace placeholder views with real logic.</p>
+    </footer>
+</body>
+</html>

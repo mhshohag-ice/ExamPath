@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>My Questions</h3>
+  <ul class="nav nav-pills mt-3 mb-4">
+    <li class="nav-item"><a class="nav-link {% if tab == 'bookmarked' %}active{% endif %}" href="?tab=bookmarked">⭐ Bookmarked</a></li>
+    <li class="nav-item"><a class="nav-link {% if tab == 'incorrect' %}active{% endif %}" href="?tab=incorrect">✗ Incorrect</a></li>
+    <li class="nav-item"><a class="nav-link {% if tab == 'difficult' %}active{% endif %}" href="?tab=difficult">🔥 Difficult</a></li>
+    <li class="nav-item"><a class="nav-link {% if tab == 'recent' %}active{% endif %}" href="?tab=recent">🕒 Recent</a></li>
+  </ul>
+  <div class="row g-3">
+    {% for q in questions %}
+      <div class="col-12">
+        <div class="card-premium">
+          <div class="d-flex gap-2 mb-2"><span class="badge-premium" style="background:var(--color-accent-soft);">{{ q.subject.name }}</span><span class="badge-premium" style="background:var(--color-bg-subtle);">{{ q.exam_session.name }} Q{{ q.question_number }}</span></div>
+          <div class="question-content mb-2">{{ q.question_text|truncatechars:200 }}</div>
+          <a href="/questions/{{ q.id }}/" class="btn btn-ghost btn-premium" style="font-size:0.85rem;">View</a>
+          <a href="/quiz/start/{{ q.exam_session.slug }}/?mode=PRACTICE&count=10" class="btn btn-accent btn-premium" style="font-size:0.85rem;">Practice</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12"><div class="empty-state"><div class="empty-icon">🔖</div><h5>No questions here</h5><p class="small" style="color:var(--color-text-muted);">Save difficult questions and return to them later.</p><a href="/exams/" class="btn btn-accent btn-premium">Explore Questions</a></div></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

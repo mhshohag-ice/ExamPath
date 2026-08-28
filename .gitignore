@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual env
+venv/
+env/
+ENV/
+.venv/
+.env
+.venv
+*.venv
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+*.log
+*.pot
+*.mo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Node (if any frontend tooling)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Large data exports - keep in repo if needed, but ignore generated
+# Uncomment to ignore question bank if too large for GitHub
+# Uttoron_Question_Bank_All.md
+
+# Secrets
+.env.local
+.env.production
+secrets.txt

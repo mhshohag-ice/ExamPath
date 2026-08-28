@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Approve Import • {{ job.filename }}</h3>
+  <p class="small" style="color:var(--color-text-secondary);">Status: {{ job.status }}</p>
+  <div class="card-premium mt-3">
+    <p>Confirm import of this file?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-accent btn-premium">Confirm Import</button>
+      <a href="/imports/preview/{{ job.id }}/" class="btn btn-ghost btn-premium">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

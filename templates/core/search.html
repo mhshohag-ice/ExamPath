@@ -1,0 +1,26 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Search</h3>
+  <form method="get" class="d-flex gap-2 mt-3 mb-4">
+    <input name="q" value="{{ q }}" placeholder="Search exams, questions..." class="form-control">
+    <button class="btn btn-accent btn-premium">Search</button>
+  </form>
+  {% if q %}
+    <h6>Exams ({{ exams|length }})</h6>
+    <div class="row g-2 mb-4">
+      {% for e in exams %}
+        <div class="col-md-6"><div class="card-premium p-3"><a href="/exams/{{ e.slug }}/" class="fw-semibold text-decoration-none">{{ e.name }} • {{ e.route_id }}</a><div class="small" style="color:var(--color-text-muted);">{{ e.exam_type }} • {{ e.question_count }} Qs</div></div></div>
+      {% empty %}<p class="small" style="color:var(--color-text-muted);">No exams found.</p>{% endfor %}
+    </div>
+    <h6>Questions ({{ questions|length }})</h6>
+    {% for qu in questions %}
+      <div class="card-premium mb-2 p-3">
+        <a href="/questions/{{ qu.id }}/" class="text-decoration-none" style="color:var(--color-text);">{{ qu.question_text|truncatechars:200 }}</a>
+        <div class="small mt-1" style="color:var(--color-text-muted);">{{ qu.subject.name }} • {{ qu.exam_session.name }}</div>
+      </div>
+    {% empty %}<p class="small" style="color:var(--color-text-muted);">No questions found.</p>{% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create account — ExamPath{% endblock %}
+{% block extra_css %}
+<style>
+.auth-shell { min-height: calc(100vh - var(--nav-height) - 80px); display: grid; place-items: center; padding: var(--space-6) var(--space-4); background: var(--color-bg); }
+@media (min-width: 992px) { .auth-shell { padding: var(--space-8) var(--space-6); } }
+.auth-card { width: 100%; max-width: 980px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-2xl); box-shadow: var(--shadow-xl); overflow: hidden; display: grid; grid-template-columns: 1fr; }
+@media (min-width: 992px) { .auth-card { grid-template-columns: 460px 1fr; } }
+.auth-brand { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; padding: var(--space-10); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+.auth-brand::after { content: ''; position: absolute; inset: auto -30% -20% auto; width: 360px; height: 360px; background: radial-gradient(600px circle at 0 0, rgba(59,130,246,0.2), transparent 70%); pointer-events: none; }
+.auth-brand * { position: relative; }
+.auth-brand .brand-mark { width: 44px; height: 44px; background: white; color: #0f172a; display: grid; place-items: center; border-radius: 12px; font-weight: 800; font-size: 1.15rem; }
+.auth-form { padding: var(--space-6) var(--space-5); max-height: 88vh; overflow-y: auto; }
+@media (min-width: 768px) { .auth-form { padding: var(--space-8) var(--space-8); } }
+.auth-input-wrap { position: relative; }
+.auth-input-wrap .form-control { height: 44px; padding-right: 44px; font-size: var(--text-sm); }
+.auth-input-wrap .toggle-pw { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: 1px solid transparent; background: transparent; border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--color-text-muted); cursor: pointer; transition: all var(--transition-fast); }
+.auth-input-wrap .toggle-pw:hover { background: var(--color-bg-subtle); color: var(--color-text); border-color: var(--color-border); }
+.auth-field-error { font-size: var(--text-xs); color: var(--color-danger); margin-top: var(--space-2); display: flex; gap: 6px; align-items: flex-start; line-height: 1.4; }
+.auth-alert { border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); display: flex; gap: var(--space-3); }
+.auth-alert--error { background: var(--color-danger-soft); border: 1px solid var(--color-danger-border); color: var(--color-danger-text); }
+.auth-label { font-weight: 600; font-size: var(--text-sm); color: var(--color-text); margin-bottom: var(--space-2); display: block; }
+.auth-label small { font-weight: 500; color: var(--color-text-muted); font-size: var(--text-xs); }
+.pw-strength { height: 4px; background: var(--color-bg-subtle); border-radius: var(--radius-full); overflow: hidden; margin-top: var(--space-2); display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.pw-strength i { display: block; height: 100%; background: transparent; border-radius: var(--radius-full); transition: background var(--transition-fast); }
+.pw-strength[data-level="1"] i:nth-child(1) { background: var(--color-danger); }
+.pw-strength[data-level="2"] i:nth-child(-n+2) { background: var(--color-warning); }
+.pw-strength[data-level="3"] i:nth-child(-n+3) { background: #3b82f6; }
+.pw-strength[data-level="4"] i:nth-child(-n+4) { background: var(--color-success); }
+.pw-reqs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-top: var(--space-2); }
+.pw-req { font-size: var(--text-xs); display: flex; align-items: center; gap: 6px; color: var(--color-text-muted); }
+.pw-req.ok { color: var(--color-success-text); }
+.pw-req.ok i { color: var(--color-success); }
+.btn-auth { height: 44px; font-weight: 700; font-size: var(--text-sm); border-radius: var(--radius-md); width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); }
+.btn-auth:disabled { opacity: 0.7; cursor: not-allowed; }
+.btn-auth .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
+.btn-auth.is-loading .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.auth-divider { display: flex; align-items: center; gap: var(--space-4); margin: var(--space-5) 0; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--color-border); }
+.form-check-input:checked { background-color: var(--color-accent); border-color: var(--color-accent); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-card">
+    <!-- Brand -->
+    <div class="auth-brand d-none d-lg-flex">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <span class="brand-mark">E</span>
+          <span style="font-weight:700; letter-spacing:-0.02em; font-size:1.05rem;">ExamPath</span>
+          <span style="font-size:0.65rem; opacity:0.7; border:1px solid rgba(255,255,255,0.2); padding:0.15rem 0.4rem; border-radius:9999px;">BCS</span>
+        </div>
+        <h1 style="font-size:1.7rem; line-height:1.15; letter-spacing:-0.02em; color:white; margin:0 0 10px; font-weight:800;">Start your<br>preparation today.</h1>
+        <p style="color: rgba(255,255,255,0.7); font-size:var(--text-sm); line-height:1.6; margin:0;">Join 2,000+ aspirants practicing every real BCS question — not a demo.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:1.25rem;">
+          <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:0.85rem;">
+            <div style="font-weight:700; color:white; display:flex; align-items:center; gap:6px;"><i class="bi bi-check2-circle" style="color:#86efac;"></i> 5,870+ Qs</div>
+            <div style="font-size:0.7rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.06em;">Verified bank</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:0.85rem;">
+            <div style="font-weight:700; color:white; display:flex; align-items:center; gap:6px;"><i class="bi bi-graph-up" style="color:#93c5fd;"></i> Adaptive</div>
+            <div style="font-size:0.7rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.06em;">Weak-area AI</div>
+          </div>
+        </div>
+      </div>
+      <div style="background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:1rem;">
+        <div style="display:flex; gap:0.35rem; color:#facc15; font-size:0.85rem;">★★★★★ <span style="color:rgba(255,255,255,0.6); font-size:0.7rem; margin-left:4px;">Trusted by toppers</span></div>
+        <p style="font-size:0.85rem; line-height:1.5; color: rgba(255,255,255,0.85); margin:8px 0 0;">“The question bank is exactly the real exam. Explanations in Bangla helped me master weak topics.”</p>
+        <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+          <span style="width:26px;height:26px; background:#8b5cf6; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:0.7rem; color:white;">R</span>
+          <span style="font-size:0.8rem; font-weight:600;">Rafiul • 46th BCS</span>
+          <span style="margin-left:auto; font-size:0.7rem; opacity:0.6;">47 • 92%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="auth-form">
+      <div class="d-lg-none d-flex align-items-center gap-2 mb-3">
+        <span style="width:36px;height:36px; background:var(--color-primary); color:var(--color-text-inverse); display:grid; place-items:center; border-radius:10px; font-weight:800;">E</span>
+        <span style="font-weight:700;">ExamPath</span>
+      </div>
+
+      <div class="mb-4">
+        <h2 style="font-size:1.5rem; font-weight:800; letter-spacing:-0.02em; margin:0 0 6px;">Create your account</h2>
+        <p style="color:var(--color-text-secondary); font-size:var(--text-sm); margin:0;">Start your preparation journey today. Free forever.</p>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="auth-alert auth-alert--error mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle" aria-hidden="true" style="margin-top:2px;"></i>
+          <div>
+            {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+      {% endif %}
+      {% if messages %}
+        {% for m in messages %}
+          {% if m.tags == 'error' or m.tags == 'danger' %}
+            <div class="auth-alert auth-alert--error mb-3">{{ m }}</div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" novalidate id="signup-form" autocomplete="on">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="auth-label" for="id_full_name">Full name</label>
+          <input type="text" name="full_name" id="id_full_name" required
+                 value="{{ form.full_name.value|default:'' }}"
+                 placeholder="Enter your full name"
+                 autocomplete="name"
+                 class="form-control {% if form.full_name.errors %}is-invalid{% endif %}">
+          {% if form.full_name.errors %}<div class="auth-field-error"><i class="bi bi-x-circle"></i><span>{{ form.full_name.errors.0 }}</span></div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="auth-label" for="id_email">Email address</label>
+          <input type="email" name="email" id="id_email" required
+                 value="{{ form.email.value|default:'' }}"
+                 placeholder="Enter your email address"
+                 autocomplete="email"
+                 class="form-control {% if form.email.errors %}is-invalid{% endif %}">
+          {% if form.email.errors %}<div class="auth-field-error"><i class="bi bi-x-circle"></i><span>{{ form.email.errors.0 }}</span></div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="auth-label" for="id_username">Username <small>• 3–30 chars, letters/digits/._-+</small></label>
+          <div class="auth-input-wrap">
+            <input type="text" name="username" id="id_username" required
+                   value="{{ form.username.value|default:'' }}"
+                   placeholder="Choose a username"
+                   autocomplete="username"
+                   class="form-control {% if form.username.errors %}is-invalid{% endif %}" style="padding-left:36px;">
+            <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--color-text-muted);" aria-hidden="true"><i class="bi bi-at"></i></span>
+          </div>
+          {% if form.username.errors %}<div class="auth-field-error"><i class="bi bi-x-circle"></i><span>{{ form.username.errors.0 }}</span></div>{% endif %}
+          {% if form.username.help_text and not form.username.errors %}<div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:6px;">{{ form.username.help_text }}</div>{% endif %}
+        </div>
+
+        <div class="mb-2">
+          <label class="auth-label" for="id_password1">Password</label>
+          <div class="auth-input-wrap">
+            <input type="password" name="password1" id="id_password1" required
+                   placeholder="Create a strong password"
+                   autocomplete="new-password"
+                   class="form-control {% if form.password1.errors %}is-invalid{% endif %}">
+            <button type="button" class="toggle-pw" aria-label="Show password" aria-pressed="false" data-toggle="id_password1"><i class="bi bi-eye" aria-hidden="true"></i></button>
+          </div>
+          {% if form.password1.errors %}<div class="auth-field-error"><i class="bi bi-x-circle"></i><span>{{ form.password1.errors.0 }}</span></div>{% endif %}
+
+          <!-- Strength -->
+          <div class="pw-strength" id="pw-strength" data-level="0" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+            <span id="pw-label" style="font-size:var(--text-xs); color:var(--color-text-muted); font-weight:600;">Password strength</span>
+            <span id="pw-hint" style="font-size:var(--text-xs); color:var(--color-text-muted);">Use 8+ chars, mixed case, number & symbol</span>
+          </div>
+          <div class="pw-reqs" id="pw-reqs">
+            <span class="pw-req" data-req="len"><i class="bi bi-circle" aria-hidden="true"></i> 8+ characters</span>
+            <span class="pw-req" data-req="upper"><i class="bi bi-circle" aria-hidden="true"></i> Uppercase</span>
+            <span class="pw-req" data-req="lower"><i class="bi bi-circle" aria-hidden="true"></i> Lowercase</span>
+            <span class="pw-req" data-req="num"><i class="bi bi-circle" aria-hidden="true"></i> Number</span>
+            <span class="pw-req" data-req="sym"><i class="bi bi-circle" aria-hidden="true"></i> Symbol</span>
+            <span class="pw-req" data-req="match"><i class="bi bi-circle" aria-hidden="true"></i> Matches</span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="auth-label" for="id_password2">Confirm password</label>
+          <div class="auth-input-wrap">
+            <input type="password" name="password2" id="id_password2" required
+                   placeholder="Confirm your password"
+                   autocomplete="new-password"
+                   class="form-control {% if form.password2.errors %}is-invalid{% endif %}">
+            <button type="button" class="toggle-pw" aria-label="Show password" aria-pressed="false" data-toggle="id_password2"><i class="bi bi-eye" aria-hidden="true"></i></button>
+          </div>
+          {% if form.password2.errors %}<div class="auth-field-error"><i class="bi bi-x-circle"></i><span>{{ form.password2.errors.0 }}</span></div>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-check d-flex gap-2 align-items-start" style="cursor:pointer;">
+            <input type="checkbox" name="terms" id="id_terms" required class="form-check-input" style="margin-top:0.2rem;" {% if form.terms.value %}checked{% endif %}>
+            <span style="font-size:var(--text-sm); line-height:1.4; color:var(--color-text-secondary);">I agree to the <a href="#" style="color:var(--color-text); text-decoration:underline;">Terms & Conditions</a> and <a href="#" style="color:var(--color-text); text-decoration:underline;">Privacy Policy</a>.</span>
+          </label>
+          {% if form.terms.errors %}<div class="auth-field-error"><i class="bi bi-x-circle"></i><span>{{ form.terms.errors.0 }}</span></div>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-accent btn-auth" id="signup-btn">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Create account</span>
+        </button>
+
+        <div class="auth-divider">or</div>
+
+        <p class="text-center small m-0" style="color:var(--color-text-secondary);">
+          Already have an account?
+          <a href="/accounts/login/{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" style="color:var(--color-accent); font-weight:700; text-decoration:none;">Log in</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('signup-form');
+  const btn = document.getElementById('signup-btn');
+  const p1 = document.getElementById('id_password1');
+  const p2 = document.getElementById('id_password2');
+  const strength = document.getElementById('pw-strength');
+  const label = document.getElementById('pw-label');
+  const reqs = {
+    len: document.querySelector('[data-req="len"]'),
+    upper: document.querySelector('[data-req="upper"]'),
+    lower: document.querySelector('[data-req="lower"]'),
+    num: document.querySelector('[data-req="num"]'),
+    sym: document.querySelector('[data-req="sym"]'),
+    match: document.querySelector('[data-req="match"]'),
+  };
+  function setReq(el, ok){
+    if(!el) return;
+    el.classList.toggle('ok', ok);
+    el.querySelector('i').className = ok ? 'bi bi-check-circle-fill' : 'bi bi-circle';
+  }
+  function updateStrength(){
+    const v = p1.value;
+    const checks = {
+      len: v.length >= 8,
+      upper: /[A-Z]/.test(v),
+      lower: /[a-z]/.test(v),
+      num: /[0-9]/.test(v),
+      sym: /[^A-Za-z0-9]/.test(v),
+    };
+    Object.keys(checks).forEach(k => setReq(reqs[k], checks[k]));
+    const matchOk = v && p2.value && v === p2.value;
+    setReq(reqs.match, matchOk);
+    let score = Object.values(checks).filter(Boolean).length;
+    // bonus for length >12
+    if(v.length >= 12 && score>=3) score = 4;
+    else if(score>=3) score = 3;
+    else if(score>=2) score = 2;
+    else if(v.length>0) score = 1;
+    else score = 0;
+    strength.setAttribute('data-level', score);
+    const labels = ['','Weak','Fair','Good','Strong'];
+    const colors = ['var(--color-text-muted)','var(--color-danger)','var(--color-warning)','#3b82f6','var(--color-success)'];
+    label.textContent = v ? labels[score] : 'Password strength';
+    label.style.color = v ? colors[score] : 'var(--color-text-muted)';
+  }
+  if(p1) p1.addEventListener('input', updateStrength);
+  if(p2) p2.addEventListener('input', updateStrength);
+
+  if(form && btn){
+    form.addEventListener('submit', function(){
+      btn.classList.add('is-loading');
+      btn.disabled = true;
+      btn.querySelector('.btn-label').textContent = 'Creating account…';
+    });
+  }
+  document.querySelectorAll('[data-toggle]').forEach(function(toggle){
+    toggle.addEventListener('click', function(){
+      const id = this.getAttribute('data-toggle');
+      const input = document.getElementById(id);
+      if(!input) return;
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      this.setAttribute('aria-pressed', isPw ? 'true' : 'false');
+      this.setAttribute('aria-label', isPw ? 'Hide password' : 'Show password');
+      this.innerHTML = isPw ? '<i class="bi bi-eye-slash" aria-hidden="true"></i>' : '<i class="bi bi-eye" aria-hidden="true"></i>';
+      input.focus();
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+
+{% extends 'base.html' %}
+{% load gamification_extras %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Achievements</h3>
+  <p class="small" style="color:var(--color-text-secondary);">Earn XP • Level up • Stay motivated</p>
+  <div class="row g-3 mt-2">
+    {% for ach in achievements %}
+      {% with ua=user_ach|get_item:ach.id %}
+      <div class="col-md-4">
+        <div class="achievement-card {% if ua %}unlocked{% else %}locked{% endif %}">
+          <div class="achievement-icon">{{ ach.icon }}</div>
+          <h6 class="mb-1">{{ ach.title }}</h6>
+          <p class="small" style="color:var(--color-text-secondary);">{{ ach.description }}</p>
+          <div class="small"><span class="badge-premium" style="background:var(--color-xp-soft);">+{{ ach.xp_reward }} XP</span></div>
+          {% if ua %}<div class="small mt-2 text-success">Unlocked {{ ua.unlocked_at|date:"M d, Y" }}</div>{% else %}<div class="small mt-2" style="color:var(--color-text-muted);">Locked • {{ ach.rule_type }} {{ ach.rule_threshold }}</div>{% endif %}
+        </div>
+      </div>
+      {% endwith %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
