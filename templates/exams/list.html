@@ -1,0 +1,52 @@
+
+{% extends 'base.html' %}
+{% block title %}Exams - ExamPath{% endblock %}
+{% block content %}
+<div class="container-custom py-4">
+  <div class="mb-4">
+    <h2 class="mb-1">Master Every BCS Question</h2>
+    <p style="color:var(--color-text-secondary);">Practice smarter. Track your progress. Become exam-ready. • {{ page_obj.paginator.count }} exam sets, filtered dynamically</p>
+  </div>
+  <div class="card-premium mb-4">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-4"><label class="form-label small fw-semibold">Search</label><input name="q" value="{{ q }}" placeholder="50th, 46th, route-id..." class="form-control"></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">Status</label><select name="status" class="form-select"><option value="">All</option><option value="ACTIVE" {% if status_filter == 'ACTIVE' %}selected{% endif %}>Active</option><option value="CANCELLED" {% if status_filter == 'CANCELLED' %}selected{% endif %}>Cancelled</option><option value="DEMO" {% if status_filter == 'DEMO' %}selected{% endif %}>Demo</option></select></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">Sort</label><select name="sort" class="form-select"><option value="-exam_date" {% if sort == '-exam_date' %}selected{% endif %}>Newest</option><option value="exam_date" {% if sort == 'exam_date' %}selected{% endif %}>Oldest</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Name</option></select></div>
+      <div class="col-md-2"><button class="btn btn-accent btn-premium w-100"><i class="bi bi-search"></i> Filter</button></div>
+    </form>
+    <div class="mt-3 d-flex flex-wrap gap-2">
+      {% for s in subjects %}
+        <a href="?subject={{ s.slug }}" class="badge-premium text-decoration-none" style="background:var(--color-bg-subtle);">{{ s.name }} ({{ s.c }})</a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="row g-3">
+    {% for exam in exams %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card-premium exam-card h-100" style="padding:0;">
+          <div class="p-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="badge-premium {% if exam.status == 'CANCELLED' %}bg-danger text-white{% elif exam.is_demo %}bg-warning{% else %}bg-accent-soft{% endif %}" style="font-size:0.7rem;">{{ exam.exam_type }}{% if exam.specialization %} • {{ exam.specialization }}{% endif %} • {{ exam.status }}</span>
+              <span class="small" style="color:var(--color-text-muted);">{{ exam.exam_date|default:"—" }}</span>
+            </div>
+            <h5 class="mb-1"><a href="/exams/{{ exam.slug }}/" class="text-decoration-none" style="color:var(--color-text);">{{ exam.name }}</a></h5>
+            <p class="small mb-2" style="color:var(--color-text-secondary);">{{ exam.question_count }} Qs • {{ exam.marks }} Marks • <code>{{ exam.route_id }}</code></p>
+            <div class="progress-premium mb-2"><div class="progress-bar-premium" style="width: {% if exam.slug in progress_map %}60%{% else %}0%{% endif %}"></div></div>
+            <div class="d-flex gap-2">
+              <a href="/exams/{{ exam.slug }}/" class="btn btn-primary-custom btn-premium flex-fill">Open</a>
+              <a href="/quiz/exam/{{ exam.slug }}/" class="btn btn-ghost btn-premium flex-fill">Exam Sim</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12"><div class="empty-state"><div class="empty-icon">📭</div><h5>No exams found</h5><a href="/exams/" class="btn btn-ghost btn-premium mt-2">Clear filters</a></div></div>
+    {% endfor %}
+  </div>
+  <div class="mt-4 d-flex justify-content-center">
+    {% if exams.has_previous %}<a href="?page={{ exams.previous_page_number }}&q={{ q }}&status={{ status_filter }}&sort={{ sort }}" class="btn btn-ghost btn-premium me-2">Previous</a>{% endif %}
+    <span class="badge-premium" style="background:var(--color-surface);">Page {{ exams.number }} of {{ exams.paginator.num_pages }}</span>
+    {% if exams.has_next %}<a href="?page={{ exams.next_page_number }}&q={{ q }}&status={{ status_filter }}&sort={{ sort }}" class="btn btn-ghost btn-premium ms-2">Next</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

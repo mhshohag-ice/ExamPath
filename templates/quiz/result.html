@@ -1,0 +1,39 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4" style="max-width:900px;">
+  <div class="card-premium text-center p-4 mb-4" style="background:linear-gradient(135deg,var(--color-accent) 0%, var(--color-level) 100%);color:white;border:none;">
+    <div style="font-size:3rem;">🎉</div>
+    <h2 style="color:white;">Exam Completed</h2>
+    <div style="font-size:3rem;font-weight:800;">{{ attempt.score }}%</div>
+    <div style="opacity:0.9;">{{ attempt.correct_count }} / {{ attempt.total_questions }} • {{ attempt.get_mode_display }}</div>
+    <div class="mt-2"><span class="badge" style="background:rgba(255,255,255,0.2);">{{ attempt.score|floatformat:0 }}% {% if attempt.score >= 80 %}Excellent!{% elif attempt.score >= 60 %}Good{% else %}Keep practicing{% endif %} • +{{ attempt.xp_earned }} XP</span></div>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-value text-success">{{ attempt.correct_count }}</div><div class="stat-label">Correct</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-value text-danger">{{ attempt.incorrect_count }}</div><div class="stat-label">Incorrect</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-value">{{ attempt.skipped_count }}</div><div class="stat-label">Skipped</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card text-center"><div class="stat-value">{{ attempt.time_taken_seconds|floatformat:0 }}s</div><div class="stat-label">Time</div></div></div>
+  </div>
+  {% if prev %}
+    <div class="card-premium mb-4"><h6>Progress vs Previous</h6><div class="d-flex gap-3"><span>Previous: {{ prev.score }}%</span><span class="fw-bold" style="color:var(--color-success);">Improvement: {{ attempt.score|floatformat:1 }}% vs {{ prev.score }}%</span></div></div>
+  {% endif %}
+  <div class="card-premium">
+    <h6>Review</h6>
+    {% for q, ans in review_items %}
+      <div class="surface p-3 mb-3" style="border-radius:12px; border-left:4px solid {% if ans and ans.is_correct %}var(--color-success){% elif ans and ans.selected_label %}var(--color-danger){% else %}var(--color-border){% endif %};">
+        <div class="d-flex justify-content-between small mb-2"><span>{{ q.subject.name }} • {{ q.exam_session.name }} Q{{ q.question_number }}</span><span class="badge-premium {% if ans and ans.is_correct %}bg-success text-white{% elif ans and ans.selected_label %}bg-danger text-white{% else %}bg-secondary{% endif %}">{% if ans and ans.is_correct %}Correct{% elif ans and ans.selected_label %}Incorrect{% else %}Skipped{% endif %}</span></div>
+        <div class="question-content mb-2">{{ q.question_text|truncatechars:200 }}</div>
+        <div class="small">Your answer: <strong>{{ ans.selected_label|default:"—" }}</strong> • Correct: <strong>{{ q.normalized_answer|default:"—" }}</strong></div>
+        {% if q.explanation %}<div class="small mt-2" style="color:var(--color-text-secondary);">{{ q.explanation|truncatechars:200 }}</div>{% endif %}
+        <div class="mt-2"><a href="/questions/{{ q.id }}/" class="btn btn-ghost" style="font-size:0.8rem;">View Detail</a></div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="d-flex gap-2 mt-4">
+    <a href="/quiz/start/{{ attempt.exam_session.slug }}/?mode=INCORRECT&count=10" class="btn btn-accent btn-premium">Review Wrong ({{ attempt.incorrect_count }})</a>
+    <a href="/exams/" class="btn btn-ghost btn-premium">Explore Exams</a>
+    <a href="/dashboard/" class="btn btn-primary-custom btn-premium ms-auto">Dashboard</a>
+  </div>
+</div>
+{% endblock %}

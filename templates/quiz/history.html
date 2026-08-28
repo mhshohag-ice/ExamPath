@@ -1,0 +1,15 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Quiz History</h3>
+  <div class="card-premium mt-3">
+    {% for a in attempts %}
+      <div class="d-flex justify-content-between align-items-center p-3 mb-2" style="background:var(--color-bg-subtle);border-radius:12px;">
+        <div><div class="fw-semibold">{{ a.get_mode_display }} • {{ a.exam_session.name|default:"Mixed" }} • {{ a.total_questions }} Qs</div><div class="small" style="color:var(--color-text-muted);">{{ a.started_at|date:"M d, Y H:i" }} • {{ a.time_taken_seconds }}s</div></div>
+        <div class="text-end"><div class="fw-bold">{{ a.score }}%</div><div class="small">{{ a.correct_count }}/{{ a.total_questions }}</div><a href="/quiz/{{ a.id }}/result/" class="btn btn-ghost" style="font-size:0.8rem;">Result</a></div>
+      </div>
+    {% empty %}<p class="text-center p-4" style="color:var(--color-text-muted);">No history.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

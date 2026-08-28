@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4" style="max-width:800px;">
+  <h3>Leaderboard</h3>
+  <div class="d-flex gap-2 mt-3 mb-4">
+    <a href="?period=all" class="btn {% if period == 'all' %}btn-accent{% else %}btn-ghost{% endif %} btn-premium">All Time</a>
+    <a href="?period=weekly" class="btn {% if period == 'weekly' %}btn-accent{% else %}btn-ghost{% endif %} btn-premium">Weekly</a>
+    <a href="?period=monthly" class="btn {% if period == 'monthly' %}btn-accent{% else %}btn-ghost{% endif %} btn-premium">Monthly</a>
+  </div>
+  <div class="card-premium p-0 overflow-hidden">
+    {% for entry in leaderboard %}
+      <div class="d-flex align-items-center gap-3 p-3 {% if entry.is_you %}border-accent{% endif %}" style="border-bottom:1px solid var(--color-border); background:{% if entry.is_you %}var(--color-accent-soft){% else %}var(--color-surface){% endif %};">
+        <span class="fw-bold" style="width:32px;text-align:center;">{% if entry.rank == 1 %}🥇{% elif entry.rank == 2 %}🥈{% elif entry.rank == 3 %}🥉{% else %}#{{ entry.rank }}{% endif %}</span>
+        <span style="width:40px;height:40px;background:var(--color-primary);color:white;display:grid;place-items:center;border-radius:10px;font-weight:700;">{{ entry.username|first|upper }}</span>
+        <div class="flex-fill"><div class="fw-semibold">{{ entry.username }} {% if entry.is_you %}<span class="badge bg-primary">YOU</span>{% endif %}</div><div class="small" style="color:var(--color-text-muted);">Level {{ entry.level }}</div></div>
+        <span class="badge-premium badge-xp">{{ entry.total }} XP</span>
+      </div>
+    {% empty %}<div class="p-4 text-center" style="color:var(--color-text-muted);">No leaderboard data yet.</div>{% endfor %}
+  </div>
+  {% if user_rank %}<div class="card-premium mt-3 text-center"><span class="small">Your rank: <strong>#{{ user_rank }}</strong></span></div>{% endif %}
+</div>
+{% endblock %}

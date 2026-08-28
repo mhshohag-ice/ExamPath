@@ -1,0 +1,24 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Written Questions</h3>
+  <p class="small" style="color:var(--color-text-secondary);">Architecture ready • 12 sets • Descriptive • Future AI evaluation</p>
+  <div class="row g-3 mt-3">
+    {% for q in questions %}
+      <div class="col-12">
+        <div class="card-premium">
+          <div class="d-flex gap-2 mb-2"><span class="badge-premium" style="background:var(--color-accent-soft);">{{ q.subject.name }}</span><span class="badge-premium" style="background:var(--color-bg-subtle);">{{ q.exam_session.name }} • Q{{ q.question_number }}</span><span class="badge-premium">{{ q.marks|default:"—" }} Marks</span></div>
+          <div class="question-content">{{ q.question_text|truncatechars:400 }}</div>
+          <div class="small mt-2" style="color:var(--color-text-muted);">Group: {{ q.group }} • Set: {{ q.set_name }} • {{ q.code }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="mt-4 d-flex justify-content-center">
+    {% if questions.has_previous %}<a href="?page={{ questions.previous_page_number }}" class="btn btn-ghost me-2">Prev</a>{% endif %}
+    <span class="badge-premium">Page {{ questions.number }} of {{ questions.paginator.num_pages }}</span>
+    {% if questions.has_next %}<a href="?page={{ questions.next_page_number }}" class="btn btn-ghost ms-2">Next</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

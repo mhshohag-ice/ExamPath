@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>{{ exam.name }} • Subjects</h3>
+  <div class="row g-3 mt-2">
+    {% for s in subjects %}
+      <div class="col-md-4">
+        <div class="card-premium">
+          <h6>{{ s.name }}</h6>
+          <p class="small" style="color:var(--color-text-muted);">{{ s.qcount }} questions • Code {{ s.code }}</p>
+          <a href="/quiz/start/{{ exam.slug }}/?mode=SUBJECT&subject={{ s.slug }}&count=20" class="btn btn-accent btn-premium w-100">Practice 20</a>
+          <a href="/questions/?exam={{ exam.slug }}&subject={{ s.slug }}" class="btn btn-ghost btn-premium w-100 mt-2">Browse</a>
+        </div>
+      </div>
+    {% empty %}<p>No subjects.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

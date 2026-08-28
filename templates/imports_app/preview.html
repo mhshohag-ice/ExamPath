@@ -1,0 +1,24 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Import Preview • {{ job.filename }}</h3>
+  <div class="row g-3 mt-2">
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ job.total_records }}</div><div class="stat-label">Total</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ job.imported }}</div><div class="stat-label">Imported</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ job.duplicates }}</div><div class="stat-label">Duplicates</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ job.invalid }}</div><div class="stat-label">Invalid</div></div></div>
+  </div>
+  <div class="card-premium mt-4">
+    <h6>Report</h6>
+    <pre style="max-height:400px;overflow:auto;background:var(--color-bg-subtle);padding:1rem;border-radius:12px;font-size:0.8rem;">{{ job.report|default:"No report" }}</pre>
+  </div>
+  <div class="d-flex gap-2 mt-3">
+    <a href="/imports/upload/" class="btn btn-ghost btn-premium">Back</a>
+    <form method="post" action="/imports/approve/{{ job.id }}/">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-accent btn-premium">Approve & Import</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

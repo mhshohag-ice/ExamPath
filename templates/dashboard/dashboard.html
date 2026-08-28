@@ -1,0 +1,76 @@
+
+{% extends 'base.html' %}
+{% block title %}Dashboard - ExamPath{% endblock %}
+{% block content %}
+<div class="container-custom py-4">
+  <div class="mb-4">
+    <h3 class="mb-1">Good evening, {{ user.username }} 👋</h3>
+    <p class="mb-0" style="color:var(--color-text-secondary);">Your learning journey</p>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card-premium"><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Level</div><div class="d-flex align-items-center gap-3 mt-2"><div class="level-ring" style="--progress: {{ progress }}%;"><div class="level-inner">{{ profile.level }}</div></div><div><div class="fw-bold">LEVEL {{ profile.level }}</div><div class="small" style="color:var(--color-text-muted);">{{ profile.xp_total }} / {% if next_level %}{{ next_level.xp_threshold }}{% else %}{{ profile.xp_total }}{% endif %} XP</div><div class="progress-premium mt-1" style="width:120px;"><div class="progress-bar-xp" style="width:{{ progress }}%"></div></div></div></div></div></div>
+    <div class="col-md-3"><div class="card-premium"><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Streak</div><div class="mt-2 d-flex align-items-center gap-2"><span style="font-size:1.75rem;">🔥</span><span style="font-size:1.75rem;font-weight:800;">{{ profile.current_streak }} days</span></div><div class="small" style="color:var(--color-text-muted);">Longest {{ profile.longest_streak }} days</div><div class="d-flex gap-1 mt-2">{% for d in streak_days %}<span class="streak-day {% if d.active %}active{% endif %} {% if d.is_today %}today{% endif %}">{{ d.date|date:"D"|slice:":1" }}</span>{% endfor %}</div></div></div>
+    <div class="col-md-3"><div class="card-premium"><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Today's Goal</div><div class="mt-2"><span style="font-size:1.75rem;font-weight:800;">{{ today_answered }} / {{ today_goal }}</span><span class="small" style="color:var(--color-text-muted);"> questions</span></div><div class="progress-premium mt-2"><div class="progress-bar-premium" style="width: {% widthratio today_answered today_goal 100 %}%"></div></div></div></div>
+    <div class="col-md-3"><div class="card-premium"><div class="small" style="color:var(--color-text-muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">Accuracy</div><div class="mt-2" style="font-size:1.75rem;font-weight:800;">{{ accuracy }}%</div><div class="small" style="color:var(--color-text-muted);">Last 10 quizzes</div><div class="surface p-2 mt-2" style="border-radius:10px;background:var(--color-accent-soft);"><span class="small fw-semibold">Keep streak!</span></div></div></div>
+  </div>
+  {% if continue_data %}
+    <div class="card-premium mb-4 p-4" style="background:var(--color-accent);color:white;border:none;">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="small" style="opacity:0.8;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;">Continue Learning</div><div style="font-size:1.25rem;font-weight:700;">{{ continue_data.attempt.exam_session.name|default:continue_data.attempt.get_mode_display }} — {{ continue_data.attempt.exam_session.route_id|default:"Mixed" }}</div><div class="small" style="opacity:0.8;">Question {{ continue_data.answered|add:1 }} / {{ continue_data.total }} • {{ continue_data.pct }}%</div></div>
+        <a href="/quiz/{{ continue_data.attempt.id }}/" class="btn" style="background:white;color:var(--color-accent);font-weight:700;border-radius:9999px;padding:0.6rem 1.5rem;">Continue →</a>
+      </div>
+      <div class="progress-premium mt-3" style="background:rgba(255,255,255,0.2);"><div class="progress-bar-premium" style="background:white;width:{{ continue_data.pct }}%"></div></div>
+    </div>
+  {% endif %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card-premium mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0">⚡ Daily Challenge</h6><span class="badge-premium badge-xp">+100 XP</span>
+        </div>
+        <p class="small" style="color:var(--color-text-secondary);">10 Questions • 5 minutes • Intelligent selection from your weak areas</p>
+        <div class="d-flex gap-2 mt-3">
+          <a href="/quiz/start/?mode=DAILY&count=10" class="btn btn-accent btn-premium">Start Daily Challenge</a>
+          <a href="/quiz/start/?mode=QUICK&count=10" class="btn btn-ghost btn-premium">Quick 10</a>
+        </div>
+      </div>
+      <div class="card-premium">
+        <h6>Recent Attempts</h6>
+        {% for a in recent_attempts %}
+          <div class="d-flex justify-content-between align-items-center p-3 mb-2" style="background:var(--color-bg-subtle);border-radius:12px;">
+            <div><div class="fw-semibold small">{{ a.get_mode_display }} • {{ a.exam_session.name|default:"Mixed" }}</div><div class="small" style="color:var(--color-text-muted);">{{ a.completed_at|date:"M d" }} • {{ a.correct_count }}/{{ a.total_questions }}</div></div>
+            <span class="badge-premium" style="background:var(--color-surface);">{{ a.score }}%</span>
+          </div>
+        {% empty %}<p class="small" style="color:var(--color-text-muted);">No attempts yet. <a href="/exams/">Start practicing</a></p>{% endfor %}
+        <a href="/quiz/history/" class="btn btn-ghost btn-premium w-100 mt-3">View All History</a>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card-premium mb-4">
+        <h6>Weak Areas</h6>
+        {% for w in weak %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small"><span>{{ w.subject.name }}</span><span>{{ w.accuracy }}%</span></div>
+            <div class="progress-premium"><div class="progress-bar-premium" style="width:{{ w.accuracy }}%;background:var(--color-danger);"></div></div>
+          </div>
+        {% empty %}
+          <p class="small" style="color:var(--color-text-muted);">No data yet. Take a quiz to identify weak topics.</p>
+        {% endfor %}
+        {% if weak %}<a href="/quiz/start/?mode=WEAK&count=15" class="btn btn-accent btn-premium w-100 mt-2">Practice 15 weak Qs →</a>{% endif %}
+      </div>
+      <div class="card-premium mb-4">
+        <h6>Achievements</h6>
+        {% for ua in achievements %}
+          <div class="d-flex gap-2 align-items-center mb-2"><span style="font-size:1.25rem;">{{ ua.achievement.icon }}</span><div><div class="small fw-semibold">{{ ua.achievement.title }}</div><div class="small" style="color:var(--color-text-muted);">{{ ua.achievement.description|truncatechars:60 }}</div></div></div>
+        {% empty %}<p class="small" style="color:var(--color-text-muted);">No achievements yet. Answer your first question!</p>{% endfor %}
+        <a href="/achievements/" class="btn btn-ghost btn-premium w-100 mt-2">View All</a>
+      </div>
+      <div class="card-premium">
+        <h6>Bookmarks</h6>
+        <p class="small" style="color:var(--color-text-muted);">{{ bookmarks_count }} saved questions</p>
+        <a href="/bookmarks/" class="btn btn-ghost btn-premium w-100">My Questions</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

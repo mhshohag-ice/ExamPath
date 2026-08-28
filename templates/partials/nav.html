@@ -1,0 +1,88 @@
+<nav class="navbar-premium" role="navigation" aria-label="Main navigation">
+  <div class="container-custom d-flex align-items-center justify-content-between h-100">
+    <!-- Brand -->
+    <div class="d-flex align-items-center gap-4">
+      <a href="/" class="d-flex align-items-center gap-2 text-decoration-none" aria-label="ExamPath home">
+        <span style="width:36px;height:36px;background:var(--color-primary);color:var(--color-text-inverse);display:grid;place-items:center;border-radius:10px;font-weight:800;font-size:1.05rem;letter-spacing:-0.02em;">E</span>
+        <span style="font-weight:700;letter-spacing:-0.02em;color:var(--color-text);font-size:1.15rem;">ExamPath</span>
+      </a>
+      <div class="d-none d-lg-flex align-items-center gap-1" role="menubar">
+        <a href="/exams/" class="nav-link-premium {% if request.path|slice:':7' == '/exams/' %}active{% endif %}" role="menuitem">Exams</a>
+        <a href="/questions/" class="nav-link-premium {% if request.path|slice:':11' == '/questions/' %}active{% endif %}" role="menuitem">Questions</a>
+        <a href="/dashboard/" class="nav-link-premium {% if request.path|slice:':11' == '/dashboard/' %}active{% endif %}" role="menuitem">Dashboard</a>
+        <a href="/analytics/" class="nav-link-premium {% if request.path|slice:':11' == '/analytics/' %}active{% endif %}" role="menuitem">Analytics</a>
+        <a href="/leaderboard/" class="nav-link-premium {% if request.path|slice:':13' == '/leaderboard/' %}active{% endif %}" role="menuitem">Leaderboard</a>
+      </div>
+    </div>
+
+    <!-- Right side -->
+    <div class="d-flex align-items-center gap-2">
+      <form action="/search/" method="get" class="d-none d-md-flex position-relative" role="search" aria-label="Site search">
+        <i class="bi bi-search position-absolute" style="left:12px;top:50%;transform:translateY(-50%);color:var(--color-text-muted);pointer-events:none;" aria-hidden="true"></i>
+        <input name="q" placeholder="Search questions, exams..." class="form-control search-input" style="width:180px;padding-left:2.2rem;height:34px;font-size:0.8125rem;" aria-label="Search questions and exams">
+      </form>
+
+      <button id="theme-toggle" class="btn btn-ghost" type="button" style="width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:10px;" aria-label="Toggle dark mode">
+        <span id="theme-icon" aria-hidden="true">🌙</span>
+      </button>
+
+      {% if user.is_authenticated %}
+        <div class="d-none d-md-flex align-items-center gap-2">
+          <span class="badge-premium badge-xp">⚡ {{ user_xp|default:0 }} XP</span>
+          <span class="badge-premium badge-level">L{{ user_level|default:1 }}</span>
+          {% if user_streak %}<span class="badge-premium badge-streak">🔥 {{ user_streak }}</span>{% endif %}
+        </div>
+        <div class="dropdown">
+          <button class="btn d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="User menu for {{ user.username }}" style="border:1px solid var(--color-border);border-radius:10px;padding:4px 8px 4px 4px;background:var(--color-surface);">
+            <span style="width:28px;height:28px;background:var(--color-accent);color:white;display:grid;place-items:center;border-radius:8px;font-weight:700;font-size:0.8rem;flex-shrink:0;" aria-hidden="true">{{ user.username|first|upper }}</span>
+            <span class="d-none d-md-inline" style="font-weight:600;font-size:0.875rem;">{{ user.username }}</span>
+            <i class="bi bi-chevron-down" style="font-size:0.7rem;opacity:0.6;" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="/dashboard/"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" href="/accounts/profile/"><i class="bi bi-person me-2" aria-hidden="true"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="/bookmarks/"><i class="bi bi-bookmark me-2" aria-hidden="true"></i>Bookmarks</a></li>
+            <li><a class="dropdown-item" href="/achievements/"><i class="bi bi-trophy me-2" aria-hidden="true"></i>Achievements</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="/accounts/logout/" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item" style="border-radius:8px;"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Logout</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      {% else %}
+        <a href="/accounts/login/" class="btn btn-ghost d-none d-md-inline-flex btn-premium">Login</a>
+        <a href="/accounts/register/" class="btn btn-primary-custom btn-premium">Start Practicing</a>
+      {% endif %}
+
+      <button class="btn btn-ghost d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" aria-label="Open menu" style="width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:10px;">
+        <i class="bi bi-list" style="font-size:1.25rem;" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="offcanvas offcanvas-end" id="mobileNav" tabindex="-1" aria-labelledby="mobileNavLabel" style="width:300px;">
+  <div class="offcanvas-header" style="border-bottom:1px solid var(--color-border);">
+    <h5 class="offcanvas-title fw-bold" id="mobileNavLabel" style="font-size:1.05rem;">Menu</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close menu"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column gap-2">
+    <a href="/exams/" class="btn btn-ghost text-start">Exams</a>
+    <a href="/questions/" class="btn btn-ghost text-start">Questions</a>
+    <a href="/dashboard/" class="btn btn-ghost text-start">Dashboard</a>
+    <a href="/analytics/" class="btn btn-ghost text-start">Analytics</a>
+    <a href="/leaderboard/" class="btn btn-ghost text-start">Leaderboard</a>
+    <hr style="border-color: var(--color-border);">
+    {% if user.is_authenticated %}
+      <a href="/accounts/profile/" class="btn btn-ghost text-start">Profile</a>
+      <a href="/bookmarks/" class="btn btn-ghost text-start">Bookmarks</a>
+      <form method="post" action="/accounts/logout/">{% csrf_token %}<button type="submit" class="btn btn-ghost text-start w-100">Logout</button></form>
+    {% else %}
+      <a href="/accounts/login/" class="btn btn-accent w-100">Login</a>
+      <a href="/accounts/register/" class="btn btn-primary-custom w-100">Register</a>
+    {% endif %}
+  </div>
+</div>

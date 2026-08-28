@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - ExamPath{% endblock %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Admin Dashboard</h3>
+  <p class="small" style="color:var(--color-text-secondary);">Professional content management • Data quality • Analytics</p>
+  <div class="row g-3 mt-1">
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ total_questions }}</div><div class="stat-label">Questions</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ total_sessions }}</div><div class="stat-label">Exam Sets</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ total_users }}</div><div class="stat-label">Users</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ total_attempts }}</div><div class="stat-label">Attempts</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ total_answered }}</div><div class="stat-label">Questions Answered</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value text-warning">{{ missing_answers }}</div><div class="stat-label">Missing Answers</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value text-warning">{{ missing_expl }}</div><div class="stat-label">Missing Expl</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-value">{{ dup_candidates }}</div><div class="stat-label">Duplicates</div></div></div>
+  </div>
+
+  <div class="row g-4 mt-3">
+    <div class="col-lg-6">
+      <div class="card-premium">
+        <h6>Most Attempted Questions</h6>
+        {% for q in most_attempted %}
+          <div class="d-flex justify-content-between p-2 mb-2" style="background:var(--color-bg-subtle);border-radius:10px;">
+            <span class="small">{{ q.question_text|truncatechars:80 }}</span><span class="badge bg-primary">{{ q.attempts }}</span>
+          </div>
+        {% empty %}<p class="small" style="color:var(--color-text-muted);">No data yet. Quiz attempts needed.</p>{% endfor %}
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card-premium">
+        <h6>Popular Exams</h6>
+        {% for e in popular_exams %}
+          <div class="d-flex justify-content-between p-2 mb-2" style="background:var(--color-bg-subtle);border-radius:10px;">
+            <span class="small">{{ e.name }} ({{ e.route_id }})</span><span class="badge bg-success">{{ e.attempts_count }} attempts</span>
+          </div>
+        {% empty %}<p class="small" style="color:var(--color-text-muted);">No exam attempts yet.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-3">
+    <div class="col-lg-6">
+      <div class="card-premium">
+        <h6>Hardest Questions (lowest accuracy)</h6>
+        {% for q in hardest %}
+          <div class="small p-2 mb-2" style="background:var(--color-bg-subtle);border-radius:10px;">{{ q.question_text|truncatechars:100 }} • {{ q.attempts }} attempts</div>
+        {% empty %}<p class="small" style="color:var(--color-text-muted);">Need >5 attempts per question.</p>{% endfor %}
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card-premium">
+        <h6>Easiest Questions</h6>
+        {% for q in easiest %}
+          <div class="small p-2 mb-2" style="background:var(--color-bg-subtle);border-radius:10px;">{{ q.question_text|truncatechars:100 }}</div>
+        {% empty %}<p class="small" style="color:var(--color-text-muted);">Need >5 attempts.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card-premium mt-4">
+    <h6>Daily Questions Answered (last 7 days)</h6>
+    <div class="d-flex gap-2 mt-3 align-items-end" style="height:100px;">
+      {% for day, cnt in daily %}
+        <div class="flex-fill text-center">
+          <div style="height: {{ cnt|default:0 }}px; min-height:4px; max-height:80px; background:var(--color-accent); border-radius:6px 6px 0 0;"></div>
+          <div class="small mt-1" style="font-size:0.7rem;color:var(--color-text-muted);">{{ day }}</div>
+          <div class="small fw-bold">{{ cnt }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card-premium mt-4">
+    <h6>Question Bank Health</h6>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <span class="badge-premium {% if missing_answers == 0 %}bg-success text-white{% else %}bg-warning{% endif %}">Missing Answers: {{ missing_answers }}</span>
+      <span class="badge-premium {% if missing_expl == 0 %}bg-success text-white{% else %}bg-warning{% endif %}">Missing Explanations: {{ missing_expl }}</span>
+      <span class="badge-premium" style="background:var(--color-bg-subtle);">Duplicates: {{ dup_candidates }}</span>
+    </div>
+    <div class="mt-3">
+      <h6>Recent Imports</h6>
+      {% for imp in recent_imports %}
+        <div class="d-flex justify-content-between p-2 mb-2" style="background:var(--color-bg-subtle);border-radius:10px;">
+          <span class="small">{{ imp.filename }} • {{ imp.status }} • {{ imp.imported }}/{{ imp.total_records }}</span>
+          <span class="small" style="color:var(--color-text-muted);">{{ imp.created_at|date:"M d" }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="mt-3 d-flex gap-2">
+      <a href="/admin/" class="btn btn-ghost btn-premium">Django Admin</a>
+      <a href="/imports/upload/" class="btn btn-accent btn-premium">Import Markdown</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

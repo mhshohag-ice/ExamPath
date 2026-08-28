@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <h3>Import Question Bank</h3>
+  <div class="card-premium mt-3">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3"><label class="form-label">Markdown File</label><input type="file" name="file" accept=".md" class="form-control" required></div>
+      <button type="submit" class="btn btn-accent btn-premium">Upload & Preview</button>
+    </form>
+  </div>
+  <div class="card-premium mt-4">
+    <h6>Recent Imports</h6>
+    {% for job in jobs %}
+      <div class="d-flex justify-content-between p-2 mb-2" style="background:var(--color-bg-subtle);border-radius:10px;">
+        <span class="small">{{ job.filename }} • {{ job.status }} • {{ job.imported }}/{{ job.total_records }}</span>
+        <a href="/imports/preview/{{ job.id }}/" class="btn btn-ghost" style="font-size:0.8rem;">View</a>
+      </div>
+    {% empty %}<p class="small" style="color:var(--color-text-muted);">No imports yet.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

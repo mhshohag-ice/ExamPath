@@ -1,0 +1,65 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-custom py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+    <div><h3 class="mb-1">Questions</h3><p class="small mb-0" style="color:var(--color-text-secondary);">Bengali + English + LaTeX • Search & filter • Bookmark • Review</p></div>
+    <form method="get" class="d-flex gap-2">
+      <input name="q" value="{{ q }}" placeholder="Search questions..." class="form-control" style="width:260px;">
+      <button class="btn btn-accent btn-premium">Search</button>
+    </form>
+  </div>
+  <div class="card-premium mb-4 p-3">
+    <form method="get" class="row g-2">
+      <input type="hidden" name="q" value="{{ q }}">
+      <div class="col-md-3"><select name="subject" class="form-select"><option value="">All Subjects</option>{% for s in subjects %}<option value="{{ s.slug }}" {% if request.GET.subject == s.slug %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></div>
+      <div class="col-md-3"><select name="exam" class="form-select"><option value="">All Exams</option>{% for e in exams %}<option value="{{ e.slug }}" {% if request.GET.exam == e.slug %}selected{% endif %}>{{ e.name }}</option>{% endfor %}</select></div>
+      <div class="col-md-2"><select name="resolved" class="form-select"><option value="">All Answers</option><option value="1" {% if request.GET.resolved == '1' %}selected{% endif %}>Resolved</option><option value="0" {% if request.GET.resolved == '0' %}selected{% endif %}>Unresolved</option></select></div>
+      <div class="col-md-2"><button class="btn btn-ghost btn-premium w-100">Filter</button></div>
+      <div class="col-md-2"><a href="/questions/" class="btn btn-ghost btn-premium w-100">Clear</a></div>
+    </form>
+  </div>
+  <div class="row g-3">
+    {% for qu in questions %}
+      <div class="col-12">
+        <div class="card-premium">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge-premium" style="background:var(--color-accent-soft);border-color:var(--color-accent-border);">{{ qu.subject.name|default:"General" }}</span>
+              <span class="badge-premium" style="background:var(--color-bg-subtle);">{{ qu.exam_session.name }} • Q{{ qu.question_number }}</span>
+              {% if not qu.is_resolved %}<span class="badge-premium bg-warning">Unresolved</span>{% endif %}
+            </div>
+            <span class="small" style="color:var(--color-text-muted);">#{{ qu.id }}</span>
+          </div>
+          <div class="question-content mb-3" style="font-size:1rem;line-height:1.7;">
+            <a href="/questions/{{ qu.id }}/" class="text-decoration-none" style="color:var(--color-text);">{{ qu.question_text|truncatechars:240 }}</a>
+          </div>
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            {% for ch in qu.choices.all %}
+              <span class="badge-premium" style="background:var(--color-surface);">{{ ch.label }}. {{ ch.text|truncatechars:60 }}</span>
+            {% endfor %}
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            {% if user.is_authenticated %}
+              <span class="small" style="color:var(--color-text-muted);">{% if qu.has_explanation %}✓ Explanation{% else %}No explanation{% endif %} • Answer: {{ qu.normalized_answer|default:"—" }}</span>
+            {% else %}
+              <span class="small" style="color:var(--color-text-muted);"><i class="bi bi-lock"></i> <a href="/accounts/login/?next=/questions/{{ qu.id }}/" style="color:var(--color-accent); font-weight:600; text-decoration:none;">Login to see answer & explanation</a></span>
+            {% endif %}
+            <div class="d-flex gap-2">
+              {% if qu.id in bookmarked_ids %}<span class="badge-premium" style="background:var(--color-accent-soft);">⭐ Bookmarked</span>{% endif %}
+              <a href="/questions/{{ qu.id }}/" class="btn btn-ghost btn-premium" style="font-size:0.85rem;">View</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12"><div class="empty-state"><div class="empty-icon">🔍</div><h5>No questions found</h5><a href="/questions/" class="btn btn-ghost btn-premium mt-2">Clear filters</a></div></div>
+    {% endfor %}
+  </div>
+  <div class="mt-4 d-flex justify-content-center">
+    {% if questions.has_previous %}<a href="?page={{ questions.previous_page_number }}&q={{ q }}" class="btn btn-ghost btn-premium me-2">Previous</a>{% endif %}
+    <span class="badge-premium">Page {{ questions.number }} of {{ questions.paginator.num_pages }}</span>
+    {% if questions.has_next %}<a href="?page={{ questions.next_page_number }}&q={{ q }}" class="btn btn-ghost btn-premium ms-2">Next</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,198 @@
+
+{% extends 'base.html' %}
+{% load static quiz_extras %}
+{% block title %}Quiz - ExamPath{% endblock %}
+{% block content %}
+<div class="container-custom py-3">
+  <div class="d-flex flex-column flex-lg-row gap-4 align-items-start justify-content-center">
+    <div class="flex-fill" style="flex:1 1 0; min-width:0; max-width:720px;">
+      <div class="card-premium mb-3 p-3 d-flex flex-wrap justify-content-between align-items-center">
+        <div><span class="fw-semibold">{{ attempt.get_mode_display }}</span> • {{ attempt.exam_session.name|default:"Mixed" }} • Q{{ idx|add:1 }}/{{ total }}</div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="small">Progress {{ progress }}% • {{ answered_count }}/{{ total }}</span>
+          <div class="progress-premium" style="width:120px;"><div class="progress-bar-premium" style="width:{{ progress }}%"></div></div>
+          {% if attempt.mode == 'EXAM' and attempt.time_remaining_seconds %}<span class="badge-premium bg-danger text-white" id="timer" data-seconds="{{ attempt.time_remaining_seconds }}">Time: {{ attempt.time_remaining_seconds }}</span>{% endif %}
+        </div>
+      </div>
+      {% if current %}
+        <div class="card-premium">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge-premium" style="background:var(--color-accent-soft);">{{ current.subject.name }}</span>
+            <span class="small" style="color:var(--color-text-muted);">{{ current.exam_session.name }} • Q{{ current.question_number }}</span>
+          </div>
+          <div class="question-content mb-4" style="font-size:1.1rem;line-height:1.8;">{{ current.question_text|linebreaks }}</div>
+          <div class="d-grid gap-3" id="choices">
+            {% for ch in current.choices.all %}
+              <button class="choice-card {% if answers|get_item:current.id and answers|get_item:current.id.selected_label == ch.label %}selected{% endif %}" data-choice="{{ ch.label }}" onclick="selectChoice('{{ ch.label }}')">
+                <span class="choice-label">{{ ch.label }}</span>
+                <span class="choice-text">{{ ch.text }}</span>
+              </button>
+            {% endfor %}
+          </div>
+          <div id="feedback" class="mt-4 d-none">
+            <div class="surface p-3" style="border-radius:12px;">
+              <div id="feedback-status" class="fw-semibold"></div>
+              <div id="feedback-expl" class="small mt-2" style="color:var(--color-text-secondary);"></div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-4">
+            <button id="prev-btn" class="btn btn-ghost btn-premium" onclick="navigate(-1)">← Previous</button>
+            <div class="d-flex gap-2">
+              <button id="mark-btn" class="btn btn-ghost btn-premium" onclick="toggleMark()"><i class="bi bi-flag"></i> Mark</button>
+              <button class="btn btn-ghost btn-premium" onclick="clearAnswer()">Clear</button>
+              <button id="next-btn" class="btn btn-accent btn-premium" onclick="navigate(1)">Next →</button>
+            </div>
+          </div>
+          <div class="mt-4 d-flex gap-2">
+            {% if attempt.mode == 'PRACTICE' %}<button class="btn btn-ghost btn-premium" onclick="showAnswer()">Show Answer</button>{% endif %}
+            <a href="/quiz/{{ attempt.id }}/submit/" class="btn btn-primary-custom btn-premium ms-auto" onclick="return confirm('Submit exam?')">Submit Quiz</a>
+          </div>
+        </div>
+      {% else %}
+        <div class="empty-state"><h5>No question</h5></div>
+      {% endif %}
+    </div>
+    <div style="width:100%;max-width:420px; flex:0 0 420px; min-width:0;">
+      <!-- Question Navigator Component (Spec-compliant) - widened & de-congested: 8-col, larger gap -->
+      <div class="card-premium question-navigator-card" id="question-navigator-card" role="region" aria-label="Question Navigator" style="padding:20px;">
+        <div class="d-flex align-items-baseline justify-content-between mb-3">
+          <h6 class="mb-0">Navigator</h6>
+          <span class="question-navigator-subtitle small" style="color:var(--color-text-muted); font-weight:400;">— {{ total }} questions</span>
+        </div>
+        <!-- JS Component Root: props via data attributes, efficient for 100+ items -->
+        <!-- Position 1..N (for exam N=200, position==question_number inc. Blank Q21,129,172) -->
+        <div id="question-navigator-root"
+             class="question-navigator-grid"
+             data-total="{{ total }}"
+             data-current="{{ idx|add:1 }}"
+             data-answered="{{ answered_numbers|join:',' }}"
+             data-flagged="{{ flagged_numbers|join:',' }}"
+             data-skipped="{{ skipped_numbers|join:',' }}"
+             role="navigation" aria-label="Question navigator">
+          <!-- Fallback server-rendered (no-JS) – 10 per row, circular, no underline -->
+          {% for i,q,state,ans in nav_states %}
+            <a href="?q={{ i }}" class="q-nav-btn {{ state }}" aria-label="Question {{ i|add:1 }}" data-q="{{ i|add:1 }}" style="text-decoration:none;">{{ i|add:1 }}</a>
+          {% endfor %}
+        </div>
+        <div class="mt-3 small d-flex flex-column gap-1" style="color:var(--color-text-muted);">
+          <span><span style="width:10px;height:10px;background:transparent;border:1.5px solid var(--color-success-border);display:inline-block;border-radius:9999px;vertical-align:middle;"></span> Answered <span style="opacity:0.7;">(green border)</span></span>
+          <span><span style="width:10px;height:10px;background:transparent;border:1.5px solid #f59e0b;display:inline-block;border-radius:9999px;vertical-align:middle;"></span> Marked/Flagged <span style="opacity:0.7;">(orange)</span></span>
+          <span><span style="width:10px;height:10px;background:var(--color-accent);display:inline-block;border-radius:9999px;vertical-align:middle;"></span> Current <span style="opacity:0.7;">(blue fill)</span></span>
+        </div>
+        <div class="mt-3 d-grid"><a href="/quiz/{{ attempt.id }}/submit/" class="btn btn-primary-custom btn-premium">Submit Exam</a></div>
+        <div class="small mt-3" style="color:var(--color-text-muted);">Use keys A-D / 1-4 to answer, ← → to navigate, M to mark. Auto-saves instantly.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% csrf_token %}
+<script>
+let currentIdx = {{ idx }};
+let total = {{ total }};
+let attemptId = {{ attempt.id }};
+let currentQid = {{ current.id|default:0 }};
+function getCookie(name){let v=null; if(document.cookie&&document.cookie!==''){const cs=document.cookie.split(';'); for(let c of cs){c=c.trim(); if(c.startsWith(name+'=')){v=decodeURIComponent(c.substring(name.length+1));break;}}} return v;}
+function selectChoice(label){
+  // visual
+  document.querySelectorAll('.choice-card').forEach(el=>el.classList.remove('selected'));
+  const btn = document.querySelector(`[data-choice="${label}"]`);
+  if(btn) btn.classList.add('selected');
+  // auto-save
+  fetch(`/quiz/${attemptId}/answer/`, {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')}, body: JSON.stringify({question_id: currentQid, choice: label})})
+    .then(r=>r.json()).then(d=>{
+      if(d.is_correct!==undefined && "{{ attempt.mode }}"==="PRACTICE"){
+        const fb=document.getElementById('feedback');
+        const status=document.getElementById('feedback-status');
+        const expl=document.getElementById('feedback-expl');
+        fb.classList.remove('d-none');
+        if(d.is_correct){ status.textContent='✓ Correct +10 XP'; status.style.color='var(--color-success)'; if(window.showXP) showXP(10);} else { status.textContent='✗ Incorrect • Correct: '+d.correct_answer; status.style.color='var(--color-danger)';}
+        expl.textContent = d.explanation || '';
+        // KaTeX re-render
+        if(window.renderMathInElement) renderMathInElement(fb);
+      }
+    });
+}
+function navigate(delta){
+  let nxt = currentIdx + delta;
+  if(nxt<0) nxt=0;
+  if(nxt>=total) nxt=total-1;
+  window.location.href = `?q=${nxt}`;
+}
+function toggleMark(){
+  fetch(`/quiz/${attemptId}/answer/`, {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')}, body: JSON.stringify({question_id: currentQid, choice: document.querySelector('.choice-card.selected')?.dataset.choice || '', marked_for_review: true})}).then(()=>location.reload());
+}
+function clearAnswer(){
+  document.querySelectorAll('.choice-card').forEach(el=>el.classList.remove('selected'));
+  fetch(`/quiz/${attemptId}/answer/`, {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')}, body: JSON.stringify({question_id: currentQid, choice: ''})}).then(()=>location.reload());
+}
+function showAnswer(){
+  fetch(`/quiz/${attemptId}/answer/`, {method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')}, body: JSON.stringify({question_id: currentQid, choice: ''})}).then(r=>r.json()).then(d=>{
+    const fb=document.getElementById('feedback'); fb.classList.remove('d-none');
+    document.getElementById('feedback-status').textContent='Correct: '+d.correct_answer;
+    document.getElementById('feedback-expl').textContent=d.explanation;
+  });
+}
+// Timer for exam mode
+(function(){
+  const el=document.getElementById('timer');
+  if(!el) return;
+  let secs=parseInt(el.dataset.seconds||0);
+  function fmt(s){ const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;}
+  setInterval(()=>{
+    secs=Math.max(0, secs-1);
+    el.textContent='Time: '+fmt(secs);
+    if(secs<=0){ el.textContent='Time up! Auto-submit...'; setTimeout(()=>{ window.location.href=`/quiz/${attemptId}/submit/`; }, 1500); }
+  },1000);
+})();
+</script>
+
+<!-- Question Navigator Component (Spec-compliant) -->
+<script type="module">
+  import { QuestionNavigator } from "{% static 'js/question-navigator.js' %}";
+  const root = document.getElementById('question-navigator-root');
+  if (root) {
+    // Parse data attributes (1-indexed numbers as per spec)
+    const total = parseInt(root.dataset.total || '0', 10);
+    const current = parseInt(root.dataset.current || '1', 10);
+    const answered = (root.dataset.answered || '').split(',').map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n));
+    const flagged = (root.dataset.flagged || '').split(',').map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n));
+    const skipped = (root.dataset.skipped || '').split(',').map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n));
+    // Enhance existing server-rendered grid if already correct size, else re-render
+    const existingBtns = root.querySelectorAll('.q-nav-btn');
+    if (existingBtns.length === total && total > 0) {
+      // Just enhance existing buttons: ensure correct classes and onNavigate
+      const nav = new QuestionNavigator({
+        container: root,
+        totalQuestions: total,
+        currentQuestion: current,
+        answeredQuestions: answered,
+        flaggedQuestions: flagged,
+        skippedQuestions: skipped,
+        onNavigate: (n) => {
+          const url = new URL(window.location.href);
+          url.searchParams.set('q', String(n - 1));
+          window.location.href = url.toString();
+        }
+      });
+      // Avoid double-render: restore server-rendered and just update states
+      // The constructor already re-rendered, so we need to prevent duplicate work.
+      // Instead, we will use the instance to update states without clearing if we detect existing.
+      // For now, the constructor's render already replaced the server content correctly.
+    } else {
+      new QuestionNavigator({
+        container: root,
+        totalQuestions: total,
+        currentQuestion: current,
+        answeredQuestions: answered,
+        flaggedQuestions: flagged,
+        skippedQuestions: skipped,
+        onNavigate: (n) => {
+          const url = new URL(window.location.href);
+          url.searchParams.set('q', String(n - 1));
+          window.location.href = url.toString();
+        }
+      });
+    }
+  }
+</script>
+{% endblock %}
