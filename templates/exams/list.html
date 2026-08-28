@@ -25,10 +25,6 @@
       <div class="col-md-6 col-lg-4">
         <div class="card-premium exam-card h-100" style="padding:0;">
           <div class="p-4">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="badge-premium {% if exam.status == 'CANCELLED' %}bg-danger text-white{% elif exam.is_demo %}bg-warning{% else %}bg-accent-soft{% endif %}" style="font-size:0.7rem;">{{ exam.exam_type }}{% if exam.specialization %} • {{ exam.specialization }}{% endif %} • {{ exam.status }}</span>
-              <span class="small" style="color:var(--color-text-muted);">{{ exam.exam_date|default:"—" }}</span>
-            </div>
             <h5 class="mb-1"><a href="/exams/{{ exam.slug }}/" class="text-decoration-none" style="color:var(--color-text);">{{ exam.name }}</a></h5>
             <p class="small mb-2" style="color:var(--color-text-secondary);">{{ exam.question_count }} Qs • {{ exam.marks }} Marks • <code>{{ exam.route_id }}</code></p>
             <div class="progress-premium mb-2"><div class="progress-bar-premium" style="width: {% if exam.slug in progress_map %}60%{% else %}0%{% endif %}"></div></div>

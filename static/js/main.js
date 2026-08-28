@@ -1,1 +1,1 @@
-console.log("Uttoron loaded")
+console.log("ExamPath loaded")

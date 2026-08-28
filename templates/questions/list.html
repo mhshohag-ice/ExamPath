@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container-custom py-4">
   <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
-    <div><h3 class="mb-1">Questions</h3><p class="small mb-0" style="color:var(--color-text-secondary);">Bengali + English + LaTeX • Search & filter • Bookmark • Review</p></div>
+    <div><h3 class="mb-1">Questions</h3></div>
     <form method="get" class="d-flex gap-2">
       <input name="q" value="{{ q }}" placeholder="Search questions..." class="form-control" style="width:260px;">
       <button class="btn btn-accent btn-premium">Search</button>
@@ -32,22 +32,39 @@
             <span class="small" style="color:var(--color-text-muted);">#{{ qu.id }}</span>
           </div>
           <div class="question-content mb-3" style="font-size:1rem;line-height:1.7;">
-            <a href="/questions/{{ qu.id }}/" class="text-decoration-none" style="color:var(--color-text);">{{ qu.question_text|truncatechars:240 }}</a>
+            <span style="color:var(--color-text);">{{ qu.question_text|truncatechars:240 }}</span>
           </div>
           <div class="d-flex gap-2 flex-wrap mb-3">
             {% for ch in qu.choices.all %}
               <span class="badge-premium" style="background:var(--color-surface);">{{ ch.label }}. {{ ch.text|truncatechars:60 }}</span>
             {% endfor %}
           </div>
+          {% if qu.explanation %}
+            <div class="p-3 mb-3" style="border-radius:12px; background:var(--color-bg-subtle); border:1px solid var(--color-border);">
+              <h6 style="font-size:0.9rem;" class="mb-1">Explanation</h6>
+              <div class="question-content" style="color:var(--color-text-secondary);line-height:1.7; font-size:0.9rem;">{{ qu.explanation|linebreaks }}</div>
+            </div>
+          {% endif %}
+          <div id="answer-{{ qu.id }}" class="p-3 mb-3" style="display:none; border-radius:12px; background:var(--color-bg-subtle); border:1px solid var(--color-border);">
+            {% if user.is_authenticated %}
+              <div class="fw-semibold" style="font-size:0.9rem;">Correct Answer: <span class="badge bg-success">{{ qu.normalized_answer|default:"Unresolved" }}</span></div>
+            {% else %}
+              <div class="text-center p-2">
+                <div style="width:40px;height:40px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:10px; display:grid; place-items:center; margin:0 auto 8px; font-size:1.1rem;">🔒</div>
+                <p class="small mb-2" style="color:var(--color-text-secondary);">Log in to see answer.</p>
+                <a href="/accounts/login/?next=/questions/" class="btn btn-accent btn-premium btn-sm">Log in to reveal</a>
+              </div>
+            {% endif %}
+          </div>
           <div class="d-flex justify-content-between align-items-center">
             {% if user.is_authenticated %}
-              <span class="small" style="color:var(--color-text-muted);">{% if qu.has_explanation %}✓ Explanation{% else %}No explanation{% endif %} • Answer: {{ qu.normalized_answer|default:"—" }}</span>
+              <span class="small" style="color:var(--color-text-muted);">{% if qu.has_explanation %}✓ Explanation{% else %}No explanation{% endif %}</span>
             {% else %}
-              <span class="small" style="color:var(--color-text-muted);"><i class="bi bi-lock"></i> <a href="/accounts/login/?next=/questions/{{ qu.id }}/" style="color:var(--color-accent); font-weight:600; text-decoration:none;">Login to see answer & explanation</a></span>
+              <span class="small" style="color:var(--color-text-muted);"><i class="bi bi-lock"></i> <a href="/accounts/login/?next=/questions/" style="color:var(--color-accent); font-weight:600; text-decoration:none;">Login to see answer</a></span>
             {% endif %}
             <div class="d-flex gap-2">
               {% if qu.id in bookmarked_ids %}<span class="badge-premium" style="background:var(--color-accent-soft);">⭐ Bookmarked</span>{% endif %}
-              <a href="/questions/{{ qu.id }}/" class="btn btn-ghost btn-premium" style="font-size:0.85rem;">View</a>
+              <button type="button" onclick="toggleAnswer({{ qu.id }})" class="btn btn-ghost btn-premium" style="font-size:0.85rem;" id="answer-btn-{{ qu.id }}">Answer</button>
             </div>
           </div>
         </div>
@@ -57,9 +74,19 @@
     {% endfor %}
   </div>
   <div class="mt-4 d-flex justify-content-center">
-    {% if questions.has_previous %}<a href="?page={{ questions.previous_page_number }}&q={{ q }}" class="btn btn-ghost btn-premium me-2">Previous</a>{% endif %}
+    {% if questions.has_previous %}<a href="?page={{ questions.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}" class="btn btn-ghost btn-premium me-2">Previous</a>{% endif %}
     <span class="badge-premium">Page {{ questions.number }} of {{ questions.paginator.num_pages }}</span>
-    {% if questions.has_next %}<a href="?page={{ questions.next_page_number }}&q={{ q }}" class="btn btn-ghost btn-premium ms-2">Next</a>{% endif %}
+    {% if questions.has_next %}<a href="?page={{ questions.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}" class="btn btn-ghost btn-premium ms-2">Next</a>{% endif %}
   </div>
 </div>
+<script>
+function toggleAnswer(id){
+  const el = document.getElementById('answer-' + id);
+  const btn = document.getElementById('answer-btn-' + id);
+  if(!el) return;
+  const isHidden = el.style.display === 'none' || el.style.display === '';
+  el.style.display = isHidden ? 'block' : 'none';
+  if(btn) btn.textContent = isHidden ? 'Hide' : 'Answer';
+}
+</script>
 {% endblock %}

@@ -40,12 +40,17 @@ def question_list(request):
     paginator = Paginator(qs, 12)
     page = paginator.get_page(request.GET.get("page"))
     subjects = Subject.objects.all()
-    exams = ExamSession.objects.all()[:20]
+    # Show all BCS exams till 10th BCS (exam_date not null, ordered newest to oldest) - no 20 limit
+    exams = ExamSession.objects.filter(exam_date__isnull=False).order_by("-exam_date", "-id")
+    # preserve filters in pagination (remove page param)
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+    query_string = query_params.urlencode()
     # bookmarks for user
     bookmarked_ids = set()
     if request.user.is_authenticated:
         bookmarked_ids = set(Bookmark.objects.filter(user=request.user).values_list("question_id", flat=True))
-    return render(request, "questions/list.html", {"questions": page, "q": q, "subjects": subjects, "exams": exams, "bookmarked_ids": bookmarked_ids})
+    return render(request, "questions/list.html", {"questions": page, "q": q, "subjects": subjects, "exams": exams, "bookmarked_ids": bookmarked_ids, "query_string": query_string})
 
 def question_detail(request, pk):
     question = get_object_or_404(Question.objects.select_related("exam_session","subject"), pk=pk)
